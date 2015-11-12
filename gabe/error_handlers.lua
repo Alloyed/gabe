@@ -101,6 +101,7 @@ handlers["0.10"] = function(msg) -- {{{
 	local reload = require 'gabe.reload'
 	love.graphics.reset()
 	reload.reload_all()
+	love.load = nil
 	love.run()
 	return
 end -- }}}
@@ -204,6 +205,7 @@ handlers["0.9"] = function(msg) -- {{{
 	local reload = require 'gabe.reload'
 	love.graphics.reset()
 	reload.reload_all()
+	love.load = nil
 	love.run()
 	return
 end -- }}}

@@ -15,6 +15,7 @@ function state.newA()
 end
 
 function state.reset()
+	state.newA()
 	state.stop()
 	S = {}
 	collectgarbage("collect")
@@ -32,8 +33,8 @@ end
 
 function state.init()
 	_G.C  = _G.C  or state.newC() -- cache
-	_G.A  = state.newA(_G.A)      -- assets
-	_G.S  = _G.S  or {} -- game state
+	_G.A  = _G.A  or {}           -- assets
+	_G.S  = _G.S  or {}           -- game state
 end
 
 return state

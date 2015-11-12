@@ -1,4 +1,4 @@
-local class = require 'class'
+local class = require 'gabe.class'
 local json  = require 'dkjson'
 local bump  = require 'bump'
 local x     = require 'misc'

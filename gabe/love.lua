@@ -16,12 +16,12 @@ function gabe.inject()
 
 	love._system = setmetatable({}, {__index = love._user})
 	love._system.load = function(args)
-		_G.S = {}
+		state.init()
+		state.newA()
 		if love._user.load then
 			love._user.load(args)
 		end
 		state.start()
-		state.init()
 	end
 	love.errhand = nil
 	local major, minor = love._version_major, love._version_minor
