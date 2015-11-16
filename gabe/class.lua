@@ -7,10 +7,10 @@ local function _tostring(t)
 end
 
 function class.class(name)
-	local class = {}
 	MT[name] = MT[name] or {name = name}
+	local class = { _mt = MT[name] }
+	MT[name].is = { [name] = true }
 	MT[name].__index = class
-	--MT[name].__tostring = _tostring
 	class.new = function(...)
 		local self = setmetatable({}, MT[name])
 		return (class.init and class.init(self, ...)) or self
@@ -19,6 +19,7 @@ function class.class(name)
 end
 
 function class.xtype(o)
+	if o._mt then return o._mt.name end
 	local mt = getmetatable(o)
 	return mt and mt.name
 end
@@ -55,17 +56,33 @@ local function juxt(...)
 	end
 end
 
+local function mt(o)
+	return (o and o._mt) or getmetatable(o)
+end
+
+-- class-specific things. don't override.
+local skip = { new = true, _mt = true }
 function class.mixin(o, mixin)
 	for k, v in pairs(mixin) do
-		if type(o[k]) == 'function' then
-			if k ~= "new" then
+		if not skip[k] then
+			if type(o[k]) == 'function' then
 				o[k] = juxt(o[k], v)
+			else
+				o[k] = v
 			end
-		else
-			o[k] = v
 		end
 	end
+	local xt = class.xtype(mixin)
+	if xt then
+		mt(o).is[xt] = true
+	end
 	return o
+end
+
+function class.is(o, name)
+	local mt = mt(o)
+
+	return mt and mt.is and mt.is[name]
 end
 
 return setmetatable(class, {
