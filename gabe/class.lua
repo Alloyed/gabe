@@ -65,10 +65,10 @@ local skip = { new = true, _mt = true }
 function class.mixin(o, mixin)
 	for k, v in pairs(mixin) do
 		if not skip[k] then
-			if type(o[k]) == 'function' then
-				o[k] = juxt(o[k], v)
-			else
+			if o[k] == nil then
 				o[k] = v
+			elseif type(o[k]) == 'function' then
+				o[k] = juxt(o[k], v)
 			end
 		end
 	end

@@ -37,6 +37,15 @@ describe("mixins", function()
 		assert.equal(K.field, "mixed-in")
 	end)
 
+	it("doesn't override existing fields", function()
+		local K = class 'K'
+		K.field = "unmixed"
+		local mixin = { field = "mixed-in", field2 = "mixed-in" }
+		class.mixin(K, mixin)
+		assert.equal(K.field,  "unmixed")
+		assert.equal(K.field2, "mixed-in")
+	end)
+
 	it("juxtapose functions that have the same name", function()
 		local K = class 'K'
 		local a, b = false
