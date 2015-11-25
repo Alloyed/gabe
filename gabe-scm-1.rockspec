@@ -1,11 +1,11 @@
 package = "gabe"
 version = "scm-1"
 source = {
-   url = "/home/kyle/src/love-libs/gabe"
+   url = "git://github.com/Alloyed/gabe"
 }
 description = {
-   homepage = "*** please enter a project homepage ***",
-   license = "*** please specify a license ***"
+   homepage = "https://github.com/Alloyed/gabe",
+   license = "MIT"
 }
 dependencies = {
    "love >= 0.9" 
