@@ -100,3 +100,37 @@ describe("objects", function()
 		assert.equal(klass.field, "local")
 	end)
 end)
+
+describe("fn-refs", function()
+	it("is a gabe object", function()
+		local f = class.fn("gabe.class", 'xtype')
+		assert.equal('function-ref', class.xtype(f))
+	end)
+
+	it("can be called",function()
+		local f = class.fn("_G", 'type')
+		assert.equal('string', f('a'))
+		assert.equal('number', f(2))
+	end)
+end)
+
+describe("method-refs", function()
+	it("is a gabe object", function()
+		local f = class.method(nil, "maymay")
+		assert.equal('method-ref', class.xtype(f))
+	end)
+	it("can be called", function()
+		local c = class 'c'
+		function c:meme(arg)
+			self.last = arg
+			return arg + 1
+		end
+		local o = c.new()
+		local f = class.method(o, 'meme')
+		assert.equal(5, f(4))
+		assert.equal(4, o.last)
+
+		assert.equal(4, f(3))
+		assert.equal(3, o.last)
+	end)
+end)

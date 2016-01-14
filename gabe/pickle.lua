@@ -45,6 +45,28 @@ return function(encode, decode)
 		return obj
 	end
 
+	function pickle.check(obj, checked)
+		checked = checked or {}
+		local t = type(obj)
+		if t == 'table' then
+			for k, v in pairs(obj) do
+				-- TODO: check keys
+				local ok, err = pickle.check(v)
+				if not ok then
+					local emsg = "invalid value in %s[%s]: %s"
+					return false, emsg:format(tostring(obj), tostring(k), err)
+				end
+			end
+		end
+
+		if not valid[t] then
+			local emsg = "invalid datatype %s(%s)"
+			return false, emsg:format(tostring(t), tostring(obj))
+		end
+
+		return true
+	end
+
 	function pickle.unpickle(obj)
 		local t = type(obj)
 		if t == 'table' then

@@ -122,6 +122,34 @@ function class.is(o, name)
 	return mt and mt.is and mt.is[name]
 end
 
+local fn = class.class("function-ref")
+MT['function-ref'].__call = function(self, ...)
+	return package.loaded[self.pkg][self.name](...)
+end
+
+function fn:init(pkg, name)
+	self.pkg = pkg
+	self.name = name
+end
+
+function class.fn(pkg, name)
+	return fn.new(pkg, name)
+end
+
+local method = class.class("method-ref")
+MT['method-ref'].__call = function(self, ...)
+	return self.object[self.method](self.object, ...)
+end
+
+function method:init(o, m)
+	self.object = o
+	self.method = m
+end
+
+function class.method(o, m)
+	return method.new(o, m)
+end
+
 return setmetatable(class, {
 	__call = function(t, ...)
 		return class.class(...)
