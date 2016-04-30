@@ -97,5 +97,15 @@ return function(encode, decode)
 		return true
 	end
 
+	function pickle.to_string(obj)
+		local data = pickle.pickle(obj)
+		return encode(data)
+	end
+
+	function pickle.from_string(str)
+		local data = assert(decode(str))
+		return pickle.unpickle(data)
+	end
+
 	return pickle
 end
