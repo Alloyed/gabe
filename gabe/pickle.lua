@@ -96,4 +96,6 @@ return function(encode, decode)
 		assert(love.filesystem.write(fname, str))
 		return true
 	end
+
+	return pickle
 end
