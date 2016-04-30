@@ -44,7 +44,7 @@ function love.load()
 	print("Game loaded")
 end
 
--- Happens on once, at the very end
+-- Happens once, at the very end
 function love.quit()
 	print("Game quit")
 end

@@ -92,11 +92,11 @@ describe("objects", function()
 	end)
 
 	it("shadow class fields", function()
-		local K = class 'classname'
-		K.field = "global"
-		local k = K.new()
-		k.field = "local"
-		assert.equal(K.field, "global")
-		assert.equal(k.field, "local")
+		local Klass = class 'classname'
+		Klass.field = "global"
+		local klass = Klass.new()
+		klass.field = "local"
+		assert.equal(Klass.field, "global")
+		assert.equal(klass.field, "local")
 	end)
 end)

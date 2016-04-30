@@ -24,10 +24,12 @@ function gabe.inject()
 		state.start()
 	end
 	love.errhand = nil
-	local major, minor = love._version_major, love._version_minor
-	local version_str = string.format("%d.%d", major, minor)
 	local err = gabe.error_handlers[version_str]
-	assert(err ~= nil, "Error handler for " .. version_str .. " not found")
+	if err ~= nil then
+		local major, minor = love._version_major, love._version_minor
+		local version_str = string.format("%d.%d", major, minor)
+		error("Error handler for " .. version_str .. " not found")
+	end
 
 	love._system.errhand = err
 	love = setmetatable(love, {
