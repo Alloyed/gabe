@@ -6,7 +6,7 @@ local state  = require 'gabe.state'
 -- Gabe.reload provides functions to reload code
 local reload = require 'gabe.reload'
 -- Gabe.class provides a simple, reload-friendly class implementation
-local class  = require 'gabe.class'
+local class = require 'gabe.class'
 
 -- An example class.
 ------------------------------------------------------------------------------
@@ -51,10 +51,12 @@ end
 
 -- Happens on love.quit, and in between resets
 function state.stop()
+	print("stop")
 end
 
 -- Happens on love.load, and in between resets
 function state.start()
+	print("start")
 	local w, h = love.graphics.getDimensions()
 	S.dots = {}
 	for i=1, 3 do
