@@ -132,6 +132,14 @@ function fn:init(pkg, name)
 	self.name = name
 end
 
+--- Returns a callable object, that can be used to refer to functions in a
+--  serializable way.
+--      class.fn("my-module", "my_function") (...)
+--  is equivalent to
+--      require("my-module").my_function(...)
+--  @param pkg the module the function is owned by.A
+--  @param name the name of the function
+--  @return a callable ref
 function class.fn(pkg, name)
 	return fn.new(pkg, name)
 end
@@ -146,8 +154,15 @@ function method:init(o, m)
 	self.method = m
 end
 
-function class.method(o, m)
-	return method.new(o, m)
+--- Returns a callable object, that can be used to refer to a class's methods
+--      class.method(obj, "method") (...)
+--  is equivalent to
+--      obj:method(...)
+--  @param obj the object
+--  @param name the method name
+--  @return the method ref
+function class.method(obj, name)
+	return method.new(obj, name)
 end
 
 return setmetatable(class, {
