@@ -16,6 +16,7 @@ build = {
       ["gabe"] = "gabe/init.lua",
       ["gabe.class"] = "gabe/class.lua",
       ["gabe.error_handlers"] = "gabe/error_handlers.lua",
+      ["gabe.runners"] = "gabe/runners.lua",
       ["gabe.love"] = "gabe/love.lua",
       ["gabe.pickle"] = "gabe/pickle.lua",
       ["gabe.reload"] = "gabe/reload.lua",
