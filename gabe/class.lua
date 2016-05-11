@@ -1,3 +1,5 @@
+local bitser_ok, bitser = pcall(require, 'bitser')
+
 local class = {}
 
 _G.MT = _G.MT or {} -- metatables
@@ -13,14 +15,17 @@ end
 --  @return the class table
 function class.class(name)
 	MT[name] = MT[name] or {name = name}
-	local class = { _mt = MT[name] }
+	local klass = { _mt = MT[name] }
 	MT[name].is = { [name] = true }
-	MT[name].__index = class
-	class.new = function(...)
+	MT[name].__index = klass
+	klass.new = function(...)
 		local self = setmetatable({}, MT[name])
-		return (class.init and class.init(self, ...)) or self
+		return (klass.init and klass.init(self, ...)) or self
 	end
-	return class
+	if bitser then
+		bitser.registerClass(name, MT[name], nil, setmetatable)
+	end
+	return klass
 end
 
 --- Returns the given object's canonical class name. Where possible, try to use
