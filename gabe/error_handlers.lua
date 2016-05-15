@@ -78,20 +78,20 @@ handlers["0.10"] = function(msg) -- {{{
 
 		for e, a, b, c in love.event.poll() do
 			if e == "quit" then
-				return
+				return false
 			end
 			if e == "keypressed" and a == "escape" then
-				return
+				return false
 			end
 			if e == "textinput" and a == "r" then
 				reload.reload_all()
-				return
+				return true
 			end
 
 			if e == "textinput" and a == "R" then
 				reload.reload_all()
 				state.reset()
-				return
+				return true
 			end
 			if e == "repler" then
 				love.handlers.repler(a)
@@ -104,7 +104,7 @@ handlers["0.10"] = function(msg) -- {{{
 			love.timer.sleep(0.1)
 		end
 	end
-	return
+	return false
 end -- }}}
 
 return handlers

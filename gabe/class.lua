@@ -22,7 +22,7 @@ function class.class(name)
 		local self = setmetatable({}, MT[name])
 		return (klass.init and klass.init(self, ...)) or self
 	end
-	if bitser then
+	if bitser_ok then
 		bitser.registerClass(name, MT[name], nil, setmetatable)
 	end
 	return klass

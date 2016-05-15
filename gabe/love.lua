@@ -68,10 +68,11 @@ function gabe.inject()
 		if love.load then love.load(arg) end
 		state.start()
 
-		while true do
+		local cont = true
+		while cont do
 			local ok, err = xpcall(runner, debug.traceback)
 			if not ok then
-				error_handler(err)
+				cont = error_handler(err)
 			else
 				return
 			end
