@@ -170,6 +170,25 @@ function class.method(obj, name)
 	return method.new(obj, name)
 end
 
+local multi = class.class("multi-ref")
+MT['multi-ref'].__call = function(ref, self, ...)
+	return self[ref.method](self, ...)
+end
+
+function multi:init(m)
+	self.method = m
+end
+
+--- Returns a callable multimethod. Multimethods are like methods, except that
+--  they refer to _any_ method with that name as opposed to a specific method.
+--		class.multi("method") (obj, ...)
+--	is equivalent to
+--		obj:method(obj, ...)
+--
+function class.multi(name)
+	return multi.new(name)
+end
+
 return setmetatable(class, {
 	__call = function(t, ...)
 		return class.class(...)

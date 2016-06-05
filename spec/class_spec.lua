@@ -101,7 +101,7 @@ describe("objects", function()
 	end)
 end)
 
-describe("fn-refs", function()
+describe("fn-ref", function()
 	it("is a gabe object", function()
 		local f = class.fn("gabe.class", 'xtype')
 		assert.equal('function-ref', class.xtype(f))
@@ -114,7 +114,7 @@ describe("fn-refs", function()
 	end)
 end)
 
-describe("method-refs", function()
+describe("method-ref", function()
 	it("is a gabe object", function()
 		local f = class.method(nil, "maymay")
 		assert.equal('method-ref', class.xtype(f))
@@ -132,5 +132,32 @@ describe("method-refs", function()
 
 		assert.equal(4, f(3))
 		assert.equal(3, o.last)
+	end)
+end)
+
+describe("multi-ref", function()
+	it("is a gabe object", function()
+		local f = class.multi("maymay")
+		assert.equal('multi-ref', class.xtype(f))
+	end)
+	it("can be called", function()
+		local A = class 'A'
+		function A:meme(arg)
+			self.last1 = arg
+			return arg + 1
+		end
+		local B = class 'B'
+		function B:meme(arg)
+			self.last2 = arg
+			return arg + 2
+		end
+
+		local a, b = A.new(), B.new()
+		local f = class.multi('meme')
+		assert.equal(5, f(a, 4))
+		assert.equal(4, a.last1)
+
+		assert.equal(5, f(b, 3))
+		assert.equal(3, b.last2)
 	end)
 end)
