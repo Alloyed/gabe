@@ -27,6 +27,41 @@ describe("classes", function()
 		assert.equal(class.xtype(K), 'classname')
 		assert.equal(class.xtype(K2), 'classname2')
 	end)
+
+	they("can be defined externally", function()
+		local a = nil
+		local K = {}
+		function K:thing()
+			a = self.a
+		end
+		local mt = {__index = K}
+		class.register(mt, "classname")
+
+		local o = setmetatable({a = "hi"}, mt)
+		assert.equal("classname", class.xtype(o))
+		assert.truthy(class.is(o, "classname"))
+		o:thing()
+		assert.equal("hi", a)
+	end)
+
+	they("can be redefined", function()
+		local a = nil
+
+		local K = class 'classname'
+		function K:thing()
+			a = "a"
+		end
+		local o = K.new()
+		o:thing()
+		assert.equal("a", a)
+
+		local K2 = class 'classname'
+		function K2:thing()
+			a = "b"
+		end
+		o:thing()
+		assert.equal("b", a)
+	end)
 end)
 
 describe("mixins", function()
@@ -44,18 +79,6 @@ describe("mixins", function()
 		class.mixin(K, mixin)
 		assert.equal(K.field,  "unmixed")
 		assert.equal(K.field2, "mixed-in")
-	end)
-
-	it("juxtapose functions that have the same name", function()
-		local K = class 'K'
-		local a, b = false
-		function K.thing() a = true end
-		local mixin = {}
-		function mixin.thing() b = true end
-		class.mixin(K, mixin)
-		K.thing()
-		assert.equal(a, true)
-		assert.equal(b, true)
 	end)
 
 	it("can also be classes", function()
@@ -98,6 +121,20 @@ describe("objects", function()
 		klass.field = "local"
 		assert.equal(Klass.field, "global")
 		assert.equal(klass.field, "local")
+	end)
+
+	it("can be created via attach()", function()
+		local K = class 'classname'
+		function K:check()
+			assert.equal(self.a, "a")
+			assert.equal(self.b, "b")
+		end
+		assert.has_errors(function()
+			K.new():check()
+		end)
+		local o = {a = "a", b = "b"}
+		class.attach(o, 'classname')
+		o:check()
 	end)
 end)
 

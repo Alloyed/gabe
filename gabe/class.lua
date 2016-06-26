@@ -1,12 +1,21 @@
+---
+-- The gabe class system. The focus here is on finding the right featureset to
+-- enable productive OOP. If I find something isn't that useful, I cut it.
+-- Important bulletpoints:
+-- * Named classes. Enabler for higher tier features.
+-- * Hotswapping. Creating a new class with the same name replaces the old one.
+-- * Mixins. Predictable dynamic replacement
+-- * Builtin bitser support. I'd prefer a user-defined way of getting named classes but w/e
+--
+-- @module gabe.class
 local bitser_ok, bitser = pcall(require, 'bitser')
+if not bitser_ok then bitser = nil end
 
 local class = {}
 
-_G.MT = _G.MT or {} -- metatables
-
-local function _tostring(t)
-	return class.xtype(t)
-end
+--- The global metatable container. All registered objects will have their
+--  metatable stored here.
+_G.MT = _G.MT or setmetatable({}, {__mode ="v"})
 
 --- Creates a new class. If a class with this name exists, it will be replaced
 --  and all existing instances of that class will point to the new class
@@ -14,18 +23,38 @@ end
 --  @param name the classname.
 --  @return the class table
 function class.class(name)
-	MT[name] = MT[name] or {name = name}
+	MT[name] = MT[name] or {}
+
 	local klass = { _mt = MT[name] }
-	MT[name].is = { [name] = true }
 	MT[name].__index = klass
 	klass.new = function(...)
 		local self = setmetatable({}, MT[name])
 		return (klass.init and klass.init(self, ...)) or self
 	end
-	if bitser_ok then
+
+	MT[name].name = name
+	MT[name].is = { [name] = true }
+	if bitser then
 		bitser.registerClass(name, MT[name], nil, setmetatable)
 	end
+
 	return klass
+end
+
+--- Registers an external class by its metatable. Like class.class, it will
+--  replace existing classes. It makes the assumption that all objects of a
+--  single class share a metatable, same as gabe classes.
+function class.register(mt, name)
+	assert(mt.name == name or mt.name == nil, "mt.name already defined.")
+
+	mt.name = name
+	mt.is   = {[name] = true}
+
+	MT[name] = mt
+
+	if bitser then
+		bitser.registerClass(name, MT[name], nil, setmetatable)
+	end
 end
 
 --- Returns the given object's canonical class name. Where possible, try to use
@@ -43,10 +72,20 @@ end
 --  @param o the object
 --  @param name the class name
 function class.attach(o, name)
-	local msg = string.format("Class %q does not exist.", tostring(name))
-	assert(MT[name] ~= nil, msg)
+	if MT[name] == nil then
+		error(string.format("Class %q does not exist.", tostring(name)))
+	end
 	setmetatable(o, MT[name])
 	return true
+end
+
+--- Behaves like attach, except if a name doesn't exist,
+--  test to see if there is a require()able file with that name and load it.
+function class.smart_attach(o, name)
+	if MT[name] == nil then
+		pcall(require, name)
+	end
+	return class.attach(o, name)
 end
 
 --- Returns the metatable associated with the given class name.
@@ -79,33 +118,20 @@ function class.contains(o, interface)
 	return true
 end
 
-local function juxt(...)
-	local fns = {...}
-	return function(...)
-		local r = {}
-		for _, f in ipairs(fns) do
-			local tmp = {f(...)}
-			if tmp[1] then
-				r = tmp
-			end
-		end
-		return unpack(r)
-	end
-end
-
 local function mt(o)
 	return (o and o._mt) or getmetatable(o)
 end
 
 -- class-specific things. don't override.
 local skip = { new = true, _mt = true }
+
+--- Given two objects, "mixes in" the fields of `mixin` into o.
+--  Establishes an o IS-A mixin relationship, if mixin is a gabe class.
 function class.mixin(o, mixin)
 	for k, v in pairs(mixin) do
 		if not skip[k] then
 			if o[k] == nil then
 				o[k] = v
-			elseif type(o[k]) == 'function' then
-				o[k] = juxt(o[k], v)
 			end
 		end
 	end
@@ -116,7 +142,9 @@ function class.mixin(o, mixin)
 	return o
 end
 
---- Returns whether or not the given object is an instance of the given class.
+--- Returns whether or not the given object is an instance of the given class,
+--  or if the given object's class has had the given class "mixed-in" to it.
+--  Honestly, this should be has-a, but w/e.
 --  @param o the object
 --  @param name the class name
 --  @return true
@@ -139,9 +167,9 @@ end
 
 --- Returns a callable object, that can be used to refer to functions in a
 --  serializable way.
---      class.fn("my-module", "my_function") (...)
+--      class.fn("my_module", "my_function") (...)
 --  is equivalent to
---      require("my-module").my_function(...)
+--      package.loaded.my-module.my_function(...)
 --  @param pkg the module the function is owned by.A
 --  @param name the name of the function
 --  @return a callable ref
