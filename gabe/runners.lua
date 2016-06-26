@@ -8,7 +8,6 @@ runners["0.10"] = function() -- {{{
 	end
  
 	state.init()
-	state.newA()
  
 	-- We don't want the first frame's dt to include time taken by love.load.
 	if love.timer then love.timer.step() end
