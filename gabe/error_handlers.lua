@@ -67,7 +67,7 @@ handlers["0.10"] = function(msg) -- {{{
 		local pos = love.window.toPixels(70)
 		love.graphics.clear(rgb_f(89, 157, 220))
 		love.graphics.printf(p, pos, pos, love.graphics.getWidth() - pos)
-		love.graphics.print("Gabe framework, press (r) to restart", 0, 0)
+		love.graphics.print("Gabe framework, press (r) to reload, (R) to restart", 0, 0)
 		love.graphics.present()
 	end
 
