@@ -136,8 +136,9 @@ function class.mixin(o, mixin)
 		end
 	end
 	local xt = class.xtype(mixin)
-	if xt then
-		mt(o).is[xt] = true
+	local _mt = mt(o)
+	if xt and _mt then
+		_mt.is[xt] = true
 	end
 	return o
 end
