@@ -97,7 +97,7 @@ describe("mixins", function()
 		assert(class.xtype(M.new()), 'M')
 	end)
 
-	it("will report themselves by name when they're a class", function()
+	it("will report their mixed-in-ness when they're a class", function()
 		local K = class 'K'
 		local M = class 'M'
 		class.mixin(K, M)
@@ -105,6 +105,28 @@ describe("mixins", function()
 		assert.truthy(class.is(K,       'M'))
 		assert.truthy(class.is(K.new(), 'K'))
 		assert.truthy(class.is(K.new(), 'M'))
+	end)
+
+	it("will disallow mixing-in a class into a non-class", function()
+		assert.has_errors(function()
+			local K = {}
+			local M = class 'M'
+			class.mixin(K, M)
+		end)
+	end)
+
+	it("will also report mixins that were used to make a component mixin", function()
+		local K = class 'K'
+		local M = class 'M'
+		local N = class 'N'
+		class.mixin(N, M)
+		class.mixin(K, N)
+		assert.truthy(class.is(K,       'K'))
+		assert.truthy(class.is(K,       'M'))
+		assert.truthy(class.is(K,       'N'))
+		assert.truthy(class.is(K.new(), 'K'))
+		assert.truthy(class.is(K.new(), 'M'))
+		assert.truthy(class.is(K.new(), 'N'))
 	end)
 end)
 

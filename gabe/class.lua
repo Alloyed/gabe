@@ -125,20 +125,25 @@ end
 -- class-specific things. don't override.
 local skip = { new = true, _mt = true }
 
---- Given two objects, "mixes in" the fields of `mixin` into o.
---  Establishes an o IS-A mixin relationship, if mixin is a gabe class.
+--- Given two objects, "mixes in" the fields of `mixin` into the object `o`.
+--  if the mixin is a class, then the object must also be a class, and the
+--  mixin-process will establish an IS-A relation between the object and its
+--  mixin. The relationship extends recusively, e.g. if A is mixed into B is
+--  mixed into C, then C is both an A and a B.
 function class.mixin(o, mixin)
+	if mixin._mt then -- mixin is a class
+		assert(o._mt, "Object must be a gabe class.")
+		for name, _ in pairs(mixin._mt.is) do
+			o._mt.is[name] = true
+		end
+	end
+
 	for k, v in pairs(mixin) do
 		if not skip[k] then
 			if o[k] == nil then
 				o[k] = v
 			end
 		end
-	end
-	local xt = class.xtype(mixin)
-	local _mt = mt(o)
-	if xt and _mt then
-		_mt.is[xt] = true
 	end
 	return o
 end
