@@ -5,7 +5,18 @@ local gabe = {}
 gabe.error_handlers = require 'gabe.error_handlers'
 gabe.runners = require 'gabe.runners'
 
-function gabe.inject()
+function gabe.inject(release_mode)
+	if release_mode then
+		local love_run = love.run
+		function love.run()
+			state.init()
+			if love.load then love.load(arg) love.load = nil end
+			state.start()
+			return love_run()
+		end
+		return
+	end
+
 	local major, minor = love._version_major, love._version_minor
 	local version_str = string.format("%d.%d", major, minor)
 
