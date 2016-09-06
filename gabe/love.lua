@@ -6,6 +6,8 @@ gabe.error_handlers = require 'gabe.error_handlers'
 gabe.runners = require 'gabe.runners'
 
 function gabe.inject(release_mode)
+	local state  = require 'gabe.state'
+
 	if release_mode then
 		local love_run = love.run
 		function love.run()
@@ -20,7 +22,6 @@ function gabe.inject(release_mode)
 	local major, minor = love._version_major, love._version_minor
 	local version_str = string.format("%d.%d", major, minor)
 
-	local state  = require 'gabe.state'
 	if love._user then
 		state.init()
 		return
