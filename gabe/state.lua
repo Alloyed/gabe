@@ -12,8 +12,9 @@ end
 
 function state.reset()
 	state.stop()
-	_G.S = {}
+	_G.C, _G.S = nil, nil
 	collectgarbage("collect")
+	state.init()
 	state.start()
 end
 
