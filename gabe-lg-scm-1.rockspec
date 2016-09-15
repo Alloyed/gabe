@@ -1,7 +1,8 @@
-package = "gabe"
+package = "gabe-lg"
 version = "scm-1"
 source = {
-   url = "git://github.com/Alloyed/gabe"
+   url = "git://github.com/Alloyed/gabe",
+   branch = "light-game"
 }
 description = {
    homepage = "https://github.com/Alloyed/gabe",
