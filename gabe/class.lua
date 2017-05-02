@@ -23,20 +23,16 @@ _G.MT = _G.MT or setmetatable({}, {__mode ="v"})
 --  @param name the classname.
 --  @return the class table
 function class.class(name)
-	MT[name] = MT[name] or {}
+	local mt = MT[name] or {}
 
-	local klass = { _mt = MT[name] }
-	MT[name].__index = klass
+	local klass = { _mt = mt }
+	mt.__index = klass
 	klass.new = function(...)
 		local self = setmetatable({}, MT[name])
 		return (klass.init and klass.init(self, ...)) or self
 	end
 
-	MT[name].name = name
-	MT[name].is = { [name] = true }
-	if bitser then
-		bitser.registerClass(name, MT[name], nil, setmetatable)
-	end
+	class.register(mt, name)
 
 	return klass
 end
@@ -96,34 +92,12 @@ function class.get(name)
 	return MT[name] and MT[name].__index
 end
 
---- Returns whether or not the given object contains the keys the interface
---  contains.
---  This provides a reasonable facsimile of the keyword "implements" in
---  traditional OO languages.
---  @param o the object to test
---  @param interface a table where each non-nil key/value pair corresponds to
---  an expected property.
---  @return true
---  @return false, error_message
-function class.contains(o, interface)
-	if o == nil then
-		return false, "Object is nil"
-	end
-	for k, _ in pairs(interface) do
-		if o[k] == nil then
-			local so, sk = tostring(o), tostring(sk)
-			return false, string.format("%q missing property %q", so, sk)
-		end
-	end
-	return true
-end
-
-local function mt(o)
+local function metatable(o)
 	return (o and o._mt) or getmetatable(o)
 end
 
 -- class-specific things. don't override.
-local skip = { new = true, _mt = true }
+local skip = { new = true, _mt = true, _mixin = true, _pre_mixin = true }
 
 --- Given two objects, "mixes in" the fields of `mixin` into the object `o`.
 --  if the mixin is a class, then the object must also be a class, and the
@@ -138,6 +112,10 @@ function class.mixin(o, mixin)
 		end
 	end
 
+	if mixin._pre_mixin then
+		mixin._pre_mixin(mixin, o)
+	end
+
 	for k, v in pairs(mixin) do
 		if not skip[k] then
 			if o[k] == nil then
@@ -145,6 +123,11 @@ function class.mixin(o, mixin)
 			end
 		end
 	end
+
+	if mixin._mixin then
+		mixin._mixin(mixin, o)
+	end
+
 	return o
 end
 
@@ -156,75 +139,13 @@ end
 --  @return true
 --  @return false
 function class.is(o, name)
-	local mt = mt(o)
+	local mt = metatable(o)
 
 	return mt and mt.is and mt.is[name]
 end
 
-local fn = class.class("function-ref")
-MT['function-ref'].__call = function(self, ...)
-	return package.loaded[self.pkg][self.name](...)
-end
-
-function fn:init(pkg, name)
-	self.pkg = pkg
-	self.name = name
-end
-
---- Returns a callable object, that can be used to refer to functions in a
---  serializable way.
---      class.fn("my_module", "my_function") (...)
---  is equivalent to
---      package.loaded.my-module.my_function(...)
---  @param pkg the module the function is owned by.A
---  @param name the name of the function
---  @return a callable ref
-function class.fn(pkg, name)
-	return fn.new(pkg, name)
-end
-
-local method = class.class("method-ref")
-MT['method-ref'].__call = function(self, ...)
-	return self.object[self.method](self.object, ...)
-end
-
-function method:init(o, m)
-	self.object = o
-	self.method = m
-end
-
---- Returns a callable object, that can be used to refer to a class's methods
---      class.method(obj, "method") (...)
---  is equivalent to
---      obj:method(...)
---  @param obj the object
---  @param name the method name
---  @return the method ref
-function class.method(obj, name)
-	return method.new(obj, name)
-end
-
-local multi = class.class("multi-ref")
-MT['multi-ref'].__call = function(ref, self, ...)
-	return self[ref.method](self, ...)
-end
-
-function multi:init(m)
-	self.method = m
-end
-
---- Returns a callable multimethod. Multimethods are like methods, except that
---  they refer to _any_ method with that name as opposed to a specific method.
---		class.multi("method") (obj, ...)
---	is equivalent to
---		obj:method(obj, ...)
---
-function class.multi(name)
-	return multi.new(name)
-end
-
 return setmetatable(class, {
-	__call = function(t, ...)
+	__call = function(_, ...)
 		return class.class(...)
 	end
 })
