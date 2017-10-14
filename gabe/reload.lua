@@ -39,9 +39,6 @@ local safe = {
 	["reload"] = true,
 	["love-watch"] = true,
 	["love-watch.watcher"] = true,
-	["love-gamepad"] = true,
-	["love-gamepad.gamepad"] = true,
-	["love-gamepad.data"] = true,
 	--["strict"] = true,
 }
 
@@ -53,7 +50,7 @@ function reload.reload(mod)
 end
 
 function reload.reload_all()
-	for modname, mod in pairs(package.loaded) do
+	for modname, _ in pairs(package.loaded) do
 		if not safe[modname] then
 			package.loaded[modname] = nil
 		end
@@ -62,7 +59,7 @@ function reload.reload_all()
 end
 
 function reload.save_modules()
-	for modname, mod in pairs(package.loaded) do
+	for modname, _ in pairs(package.loaded) do
 		safe[modname] = true
 	end
 end

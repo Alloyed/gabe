@@ -6,7 +6,7 @@
 -- * Hotswapping. Creating a new class with the same name replaces the old one.
 -- * Mixins. Predictable dynamic replacement
 -- * Builtin bitser support. I'd prefer a user-defined way of getting named classes but w/e
---
+-- luacheck: new globals MT
 -- @module gabe.class
 local bitser_ok, bitser = pcall(require, 'bitser')
 if not bitser_ok then bitser = nil end
@@ -20,9 +20,19 @@ _G.MT = _G.MT or setmetatable({}, {__mode ="v"})
 --- Creates a new class. If a class with this name exists, it will be replaced
 --  and all existing instances of that class will point to the new class
 --  instead.
---  @param name the classname.
+--  @param name the class name. if the input is a gabe object/class, then the class name will be the name of that type.
+--  @param ... extra args are concatenated onto the class name, seperated by periods.
 --  @return the class table
-function class.class(name)
+function class.class(...)
+	local a = {}
+	for i=1, select('#', ...) do
+		local s = select(i, ...)
+		if type(s) ~= "string" then
+			s = class.xtype(s)
+		end
+		table.insert(a, s)
+	end
+	local name = table.concat(a, ".")
 	local mt = MT[name] or {}
 
 	local klass = { _mt = mt }
@@ -76,7 +86,8 @@ function class.attach(o, name)
 end
 
 --- Behaves like attach, except if a name doesn't exist,
---  test to see if there is a require()able file with that name and load it.
+--  test to see if there is a require()able file with that name and load it
+--  first.
 function class.smart_attach(o, name)
 	if MT[name] == nil then
 		pcall(require, name)
