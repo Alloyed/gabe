@@ -21,6 +21,9 @@ function gabe.inject(release_mode)
 
 	local major, minor = love._version_major, love._version_minor
 	local version_str = string.format("%d.%d", major, minor)
+	if major ~= 0 then
+		version_str = string.format("%d", major)
+	end
 
 	if love._user then
 		state.init()
