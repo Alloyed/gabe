@@ -27,6 +27,14 @@ function errorscreen:add(...)
 	self.bufferDirty = true
 end
 
+function errorscreen:getBufferText()
+	if self.bufferDirty then
+		self.bufferDirty = false
+		self.bufferText = table.concat(self.buffer, "\n")
+	end
+	return self.bufferText
+end
+
 function errorscreen:newError(msg)
 	local utf8 = require("utf8")
 
@@ -40,6 +48,7 @@ function errorscreen:newError(msg)
 	msg = msg:gsub("\t", ""):gsub("%[string \"(.-)\"%]", "%1"):gsub("stack traceback:", "\nTraceback\n")
 	local lines = {}
 	for l in string.gmatch(msg, "(.-)\n") do
+		-- cut off at framework level code to keep tracebacks user-relevant
 		if string.match(l, "gabe/runners") then
 			break
 		end
@@ -70,13 +79,10 @@ function errorscreen:newError(msg)
 end
 
 function errorscreen:draw()
-	if self.bufferDirty then
-		self.bufferDirty = false
-		self.bufferText = table.concat(self.buffer, "\n")
-	end
+	local bufferText = self:getBufferText()
 	local pos = 70
 	love.graphics.clear(color(89, 157, 220))
-	love.graphics.printf(self.bufferText, pos, pos, love.graphics.getWidth() - pos)
+	love.graphics.printf(bufferText, pos, pos, love.graphics.getWidth() - pos)
 	love.graphics.present()
 end
 
@@ -94,7 +100,8 @@ end
 
 function errorscreen:copyToClipboard()
 	if not love.system then return end
-	love.system.setClipboardText(self.bufferText)
+	local bufferText = self:getBufferText()
+	love.system.setClipboardText(bufferText)
 	self:add("Copied to clipboard!")
 end
 
