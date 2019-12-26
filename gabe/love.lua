@@ -45,18 +45,50 @@ function gabe.inject(release_mode)
 		error("Missing custom framework for " .. version_str)
 	end
 
-	function love.run()
-		state.init()
-		if love.load then love.load(arg) end
-		state.start()
+	if version_str == "0.10" then
+		function love.run()
+			state.init()
+			if love.load then love.load(arg) end
+			state.start()
 
-		local cont = true
-		while cont do
-			local ok, err = xpcall(runner, debug.traceback)
-			if not ok then
-				cont = error_handler(err)
-			else
-				return
+			local cont = true
+			while cont do
+				local ok, err = xpcall(runner, debug.traceback)
+				if not ok then
+					cont = error_handler(err)
+				else
+					return
+				end
+			end
+		end
+	else
+		function love.run()
+			state.init()
+			if love.load then love.load(arg) end
+			state.start()
+
+			local runner_loop = runner()
+			local error_loop = nil
+			return function()
+				if error_loop then
+					local return_code = error_loop()
+					if return_code == 0 then
+						error_loop = nil
+					else
+						return return_code
+					end
+				else
+					local ok, maybe = xpcall(runner_loop, debug.traceback)
+					if not ok then
+						local errorstring = maybe
+						error_loop = error_handler(errorstring)
+					else
+						local return_code = maybe
+						if return_code ~= nil then
+							return return_code
+						end
+					end
+				end
 			end
 		end
 	end

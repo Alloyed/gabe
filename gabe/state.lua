@@ -2,6 +2,13 @@
 
 local state = {}
 
+state.stateName = "S"
+state.cacheName = "C"
+function state.setGlobalNames(stateName, cacheName)
+	state.stateName = stateName or "S"
+	state.cacheName = cacheName or "C"
+end
+
 --- replaceme
 function state.stop()
 end
@@ -12,24 +19,25 @@ end
 
 function state.reset()
 	state.stop()
-	_G.C, _G.S = nil, nil
+	_G[state.stateName] = nil
+	_G[state.cacheName] = nil
 	collectgarbage("collect")
 	state.init()
 	state.start()
 end
 
-local function C_index(t, k)
+local function cache_index(t, k)
 	rawset(t, k, {})
 	return rawget(t, k)
 end
 
-function state.newC()
-	return setmetatable({}, {__mode = 'k', __index = C_index})
+function state.newCache()
+	return setmetatable({}, {__mode = 'k', __index = cache_index})
 end
 
 function state.init()
-	_G.C  = _G.C  or state.newC() -- cache
-	_G.S  = _G.S  or {}           -- game state
+	_G[state.stateName]  = _G[state.stateName]  or {}
+	_G[state.cacheName]  = _G[state.cacheName]  or state.newCache()
 end
 
 return state

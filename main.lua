@@ -1,4 +1,4 @@
--- Gabe functions by monkey-patching the love table, and should be called 
+-- Gabe functions by monkey-patching the love table, and should be called
 -- first.
 require 'gabe' ()
 -- Gabe.state is the state management libraries
@@ -19,6 +19,13 @@ local Dot = class 'dot'
 -- here, and reload the game, all dots will reflect the new radius value.
 Dot.radius = 20
 
+-- In lua, methods are also fields. this means that you can redefine methods in
+-- the exact same way that you can redefine fields. Try changing 'fill' to
+-- 'line', or switching from a circle to a square.
+function Dot:draw()
+	love.graphics.circle('fill', self.x, self.y, self.radius)
+end
+
 -- Dot:init() is a constructor. It will only be called once, when an object is
 -- first created, so changing init() and reloading will only affect new dots,
 -- not old ones.
@@ -26,14 +33,7 @@ function Dot:init(x, y)
 	self.x, self.y = x, y
 end
 
--- Dot:draw() is a normal method. it can get reloaded and replaced, just like
--- Dot.radius.
-function Dot:draw()
-	love.graphics.circle('fill', self.x, self.y, self.radius)
-end
-
 -------------------------------------------------------------------------------
-
 
 -- Game lifecycle functions. Use these to set up and tear down game state as
 -- necessary.
@@ -85,6 +85,7 @@ function love.keypressed(k)
 		-- and re-opening your game, and can be used throughout testing.
 		-- NOTE: resetting your game does not automatically reload the game,
 		-- so you should do both to fully reflect changes.
+		reload.reload_all()
 		state.reset()
 		print("reset")
 	elseif k == '3' then
