@@ -42,6 +42,9 @@ local safe = {
 	--["strict"] = true,
 }
 
+local safe_prefix = {
+}
+
 local reload = {}
 
 function reload.reload(mod)
@@ -51,7 +54,8 @@ end
 
 function reload.reload_all()
 	for modname, _ in pairs(package.loaded) do
-		if not safe[modname] then
+		local found = safe[modname] or safe_prefix[modname:gsub("%..*", "")]
+		if not found then
 			package.loaded[modname] = nil
 		end
 	end
@@ -68,6 +72,13 @@ function reload.add_modules(...)
 	for i=1, select('#', ...) do
 		local n = select(i, ...)
 		safe[n] = true
+	end
+end
+
+function reload.add_prefixes(...)
+	for i=1, select('#', ...) do
+		local n = select(i, ...)
+		safe_prefix[n] = true
 	end
 end
 
