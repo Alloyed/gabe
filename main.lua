@@ -8,6 +8,8 @@ local reload = require 'gabe.reload'
 -- Gabe.class provides a simple, reload-friendly class implementation
 local class = require 'gabe.class'
 
+local Rect = require 'rect'
+
 -- An example class.
 ------------------------------------------------------------------------------
 
@@ -63,6 +65,12 @@ function state.start()
 		local dot = Dot.new(math.random(w), math.random(h))
 		table.insert(S.dots, dot)
 	end
+
+	S.rects = {}
+	for i=1, 3 do
+		local rect = Rect.new(math.random(w), math.random(h))
+		table.insert(S.rects, rect)
+	end
 end
 
 -------------------------------------------------------------------------------
@@ -73,6 +81,10 @@ function love.draw()
 	for _, d in ipairs(S.dots) do
 		d:draw()
 	end
+	for _, d in ipairs(S.rects) do
+		d:draw()
+	end
+	love.graphics.circle('fill', 400, 100, 100)
 end
 
 function love.keypressed(k)
