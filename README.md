@@ -1,5 +1,5 @@
 Gabe
 ####
 
-A framework for making LOVE games. Docs soon (tm).
+A framework for making LOVE games. continued development at: https://codeberg.org/alloyed/gabe
 
